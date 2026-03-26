@@ -1,36 +1,22 @@
 package order;
 
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
 
-import static io.restassured.RestAssured.given;
-
-public class GetOrderListTest {
-
-    @Before
-    public void setUp(){
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
-    }
+//Пересобрал проверку списка согласно рекомендациям по эндпоинтам и методам для ручек
+public class GetOrderListTest extends OrderBaseTest{
 
     @Test
-    @DisplayName("Проверка появления списка заказов и их наполненности")
+    @DisplayName("Проверка списка заказов")
+    @Description("Проверить получение списка всех заказов по ручке GET и удостовериться, что список не пуст")
     public void getOrderListTest(){
-        Response response = given()
-                .when()
-                .get("api/v1/orders");
 
-        response.then()
-                .statusCode(200)
-                .and()
-                .assertThat()
-                .body("orders", Matchers.notNullValue())
-                .body("orders", Matchers.instanceOf(List.class))
-                .body("orders.size()", Matchers.greaterThan(0));
+        Response orderListResponse = OrderApi.getOrderList();
+
+        OrderApi.assertOrderListNotEmpty(orderListResponse);
+
     };
 }
