@@ -2,20 +2,41 @@ package courier.login;
 
 import courier.CourierApi;
 import courier.CourierBaseTest;
+import courier.CourierCard;
 import courier.CourierTestValues;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
+import org.junit.Before;
 import org.junit.Test;
 
 public class CannotAuthoriseCourierTests extends CourierBaseTest {
+
+    private CourierCard validCourier;
+    private CourierCard differentLoginCourier;
+    private CourierCard differentPasswordCourier;
+    private CourierCard noLogOrPassCourier;
+
+    @Before
+    public void initializeCouriers(){
+        validCourier = CourierTestValues.courierValid;
+        differentLoginCourier = CourierTestValues.courierNotValidDifferentLogin;
+        differentPasswordCourier = CourierTestValues.courierNotValidDifferentPass;
+        noLogOrPassCourier = CourierTestValues.courierNotValidNoLoginOrPas;
+    }
 
     @Test
     @DisplayName("Проверка авторизации при неправильном логине")
     @Description("Проверить, что при неправильном логине и правильном пароле курьер не найдётся (код 404)")
     public void courierAuthorizationWrongLoginTest(){
 
-        CourierApi.createNewCourier201(CourierTestValues.courierValid);
-        CourierApi.findNewCourier404(CourierTestValues.courierNotValidDifferentLogin);
+        Response responseNewValidCourier = CourierApi.createNewCourier(validCourier);
+        Response responseFindNewCourier = CourierApi.findNewCourier(differentLoginCourier);
+
+        CourierApi.createNewCourier201(responseNewValidCourier);
+
+        CourierApi.findNewCourier404(responseFindNewCourier);
+        CourierApi.findNewCourier404Message(responseFindNewCourier);
 
     }
 
@@ -24,8 +45,13 @@ public class CannotAuthoriseCourierTests extends CourierBaseTest {
     @Description("Проверить, что при правильном логине и неправильном пароле курьер не найдётся (код 404)")
     public void courierAuthorizationWrongPassTest(){
 
-        CourierApi.createNewCourier201(CourierTestValues.courierValid);
-        CourierApi.findNewCourier404(CourierTestValues.courierNotValidDifferentPass);
+        Response responseNewValidCourier = CourierApi.createNewCourier(validCourier);
+        Response responseFindNewCourier = CourierApi.findNewCourier(differentPasswordCourier);
+
+        CourierApi.createNewCourier201(responseNewValidCourier);
+
+        CourierApi.findNewCourier404(responseFindNewCourier);
+        CourierApi.findNewCourier404Message(responseFindNewCourier);
 
     }
 
@@ -35,8 +61,13 @@ public class CannotAuthoriseCourierTests extends CourierBaseTest {
             "Внимание - на данный момент выдаёт ошибку 504. Баг!")
     public void courierAuthorizationNoLogOrPassTest(){
 
-        CourierApi.createNewCourier201(CourierTestValues.courierValid);
-        CourierApi.findNewCourier400(CourierTestValues.courierNotValidNoLoginOrPas);
+        Response responseNewValidCourier = CourierApi.createNewCourier(validCourier);
+        Response responseFindNewCourier = CourierApi.findNewCourier(noLogOrPassCourier);
+
+        CourierApi.createNewCourier201(responseNewValidCourier);
+
+        CourierApi.findNewCourier400(responseFindNewCourier);
+        CourierApi.findNewCourier400Message(responseFindNewCourier);
 
     }
 
@@ -46,7 +77,9 @@ public class CannotAuthoriseCourierTests extends CourierBaseTest {
             "(курьера нет в системе - код 404)")
     public void nonExistentCourierAuthorizationTest(){
 
-        CourierApi.findNewCourier404(CourierTestValues.courierValid);
+        Response responseFindNewCourier = CourierApi.findNewCourier(validCourier);
+
+        CourierApi.findNewCourier404(responseFindNewCourier);
 
     }
 
